@@ -41,6 +41,7 @@ import com.alipay.sofa.rpc.log.Logger;
 import com.alipay.sofa.rpc.log.LoggerFactory;
 import com.alipay.sofa.rpc.server.triple.TripleContants;
 import com.alipay.sofa.rpc.server.triple.TripleHeadKeys;
+import io.grpc.Context;
 import io.grpc.Grpc;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
@@ -288,9 +289,13 @@ public class TripleTracerAdapter {
     /**
      * 适配服务端serverSend
      */
-    public static void serverSend(SofaRequest request, final Metadata requestHeaders, SofaResponse response,
+    public static void serverSend(SofaRequest request, final Metadata requestHeaders, Context ctxWithSpan,
+                                  SofaResponse response,
                                   Throwable throwable) {
         if (EventBus.isEnable(ServerSendEvent.class)) {
+            SofaTracerSpan originalSpan = (SofaTracerSpan) TracingContextKey.getKey().get(ctxWithSpan);
+            SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+            sofaTraceContext.push(originalSpan);
             if (request == null) {
                 request = new SofaRequest();
             }

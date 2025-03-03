@@ -104,6 +104,15 @@ public class ClientHeaderClientInterceptor implements ClientInterceptor {
                 }, requestHeader);
             }
 
+            @Override
+            public void sendMessage(ReqT message) {
+                try {
+                    super.sendMessage(message);
+                } catch (Throwable t) {
+                    LOGGER.error("Client invoke grpc sendMessage meet error:", t);
+                    throw t;
+                }
+            }
         };
     }
 }
