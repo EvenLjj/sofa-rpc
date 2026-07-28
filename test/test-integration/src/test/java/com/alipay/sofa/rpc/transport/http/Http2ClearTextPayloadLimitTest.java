@@ -136,8 +136,10 @@ public class Http2ClearTextPayloadLimitTest extends ActivelyDestroyTest {
     private MyHandler sendHttpRequest(Http2ClientTransport clientTransport, FullHttpRequest httpRequest)
         throws InterruptedException {
         MyHandler handler = new MyHandler();
-        clientTransport.sendHttpRequest(httpRequest, handler);
+        int requestId = clientTransport.sendHttpRequest(httpRequest, handler);
         handler.latch.await(3, TimeUnit.SECONDS);
+        // 服务端重置 stream 时不会回响应，handler 不会被回调，需主动清理待响应 promise，避免泄漏到后续测试
+        clientTransport.responseChannelHandler.removePromise(requestId);
         return handler;
     }
 

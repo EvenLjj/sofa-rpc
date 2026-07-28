@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.rpc.transport.http;
 
+import com.alipay.sofa.rpc.common.RpcConfigs;
+import com.alipay.sofa.rpc.common.RpcOptions;
 import com.alipay.sofa.rpc.server.http.HttpServerHandler;
 import io.netty.handler.codec.http2.AbstractHttp2ConnectionHandlerBuilder;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
@@ -45,6 +47,14 @@ public final class Http2ChannelHandlerBuilder
         frameLogger(LOGGER);
         this.serverHandler = serverHandler;
         this.maxContentLength = maxContentLength;
+    }
+
+    /**
+     * 兼容旧版本的单参数构造方法：使用默认 payload 上限（{@code transport.payload.max}）。
+     * 保留此重载以维持对外 API 的二进制/源码兼容性。
+     */
+    public Http2ChannelHandlerBuilder(HttpServerHandler serverHandler) {
+        this(serverHandler, RpcConfigs.getIntValue(RpcOptions.TRANSPORT_PAYLOAD_MAX));
     }
 
     @Override
