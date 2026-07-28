@@ -36,9 +36,15 @@ public final class Http2ChannelHandlerBuilder
 
     private final HttpServerHandler       serverHandler;
 
-    public Http2ChannelHandlerBuilder(HttpServerHandler serverHandler) {
+    /**
+     * HTTP/2 请求体的最大累计长度（字节），透传给 {@link Http2ServerChannelHandler} 做请求体大小限制。
+     */
+    private final int                     maxContentLength;
+
+    public Http2ChannelHandlerBuilder(HttpServerHandler serverHandler, int maxContentLength) {
         frameLogger(LOGGER);
         this.serverHandler = serverHandler;
+        this.maxContentLength = maxContentLength;
     }
 
     @Override
@@ -49,8 +55,8 @@ public final class Http2ChannelHandlerBuilder
     @Override
     protected Http2ServerChannelHandler build(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                                               Http2Settings initialSettings) {
-        Http2ServerChannelHandler handler = new Http2ServerChannelHandler(serverHandler, decoder, encoder,
-            initialSettings);
+        Http2ServerChannelHandler handler = new Http2ServerChannelHandler(serverHandler, maxContentLength, decoder,
+            encoder, initialSettings);
         frameListener(handler);
         return handler;
     }
